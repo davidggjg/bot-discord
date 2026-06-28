@@ -19,14 +19,13 @@ const TICKET_CATEGORIES = [
   { id: 'help',    label: 'עזרה',              emoji: '🆘', color: ButtonStyle.Success },
 ];
 
-// תפקידי צוות שיכולים לראות טיקטים
 const STAFF_ROLE_NAMES = ['צוות תמיכה', 'מנהל', 'אדמין', 'Admin', 'Moderator', 'Mod'];
 
-const OPEN_BTN_ID       = 'ticket_open_main';
-const CAT_PREFIX        = 'ticket_cat::';
-const MODAL_PREFIX      = 'ticket_modal::';
-const MODAL_INPUT_ID    = 'ticket_reason';
-const CLOSE_BTN_ID      = 'ticket_close';
+const OPEN_BTN_ID    = 'ticket_open_main';
+const CAT_PREFIX     = 'ticket_cat::';
+const MODAL_PREFIX   = 'ticket_modal::';
+const MODAL_INPUT_ID = 'ticket_reason';
+const CLOSE_BTN_ID   = 'ticket_close';
 
 // ---------- עזרים ----------
 
@@ -46,7 +45,6 @@ function getStaffRoles(guild) {
 // ---------- פרסום פאנל טיקטים ----------
 
 async function publishTicketPanel(guild) {
-  // יצור/מצא ערוץ פתיחת-טיקט
   let channel = guild.channels.cache.find(
     c => c.name === 'פתיחת-טיקט' && c.type === ChannelType.GuildText
   );
@@ -58,7 +56,6 @@ async function publishTicketPanel(guild) {
     });
   }
 
-  // כפתור ראשי אחד בלבד
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId(OPEN_BTN_ID)
@@ -71,7 +68,6 @@ async function publishTicketPanel(guild) {
     components: [row]
   });
 
-  // יצור קטגוריות ריקות לכל סוג טיקט
   for (const cat of TICKET_CATEGORIES) {
     const catName = `טיקטים - ${cat.label}`;
     let category = guild.channels.cache.find(
@@ -91,10 +87,9 @@ async function publishTicketPanel(guild) {
   return { channelId: channel.id };
 }
 
-// ---------- שלב 1: לחיצה על "פתח טיקט" → הצגת 5 כפתורי קטגוריה ----------
+// ---------- שלב 1: כפתור "פתח טיקט" → 5 כפתורי בחירה ----------
 
 async function handleOpenMainButton(interaction) {
-  // שורה 1: שלושה כפתורים ראשונים
   const row1 = new ActionRowBuilder().addComponents(
     ...TICKET_CATEGORIES.slice(0, 3).map(cat =>
       new ButtonBuilder()
@@ -103,7 +98,6 @@ async function handleOpenMainButton(interaction) {
         .setStyle(cat.color)
     )
   );
-  // שורה 2: שני כפתורים נוספים
   const row2 = new ActionRowBuilder().addComponents(
     ...TICKET_CATEGORIES.slice(3).map(cat =>
       new ButtonBuilder()
@@ -120,7 +114,7 @@ async function handleOpenMainButton(interaction) {
   });
 }
 
-// ---------- שלב 2: בחירת קטגוריה → פתיחת מודאל עם שדה סיבה ----------
+// ---------- שלב 2: בחירת קטגוריה → מודאל עם שדה סיבה ----------
 
 async function handleCategoryButton(interaction) {
   const catId = interaction.customId.replace(CAT_PREFIX, '');
@@ -144,7 +138,7 @@ async function handleCategoryButton(interaction) {
   await interaction.showModal(modal);
 }
 
-// ---------- שלב 3: שליחת מודאל → פתיחת חדר פרטי בקטגוריה ----------
+// ---------- שלב 3: שליחת מודאל → חדר פרטי בקטגוריה ----------
 
 async function handleModalSubmit(interaction) {
   const catId = interaction.customId.replace(MODAL_PREFIX, '');
@@ -157,7 +151,6 @@ async function handleModalSubmit(interaction) {
 
   await interaction.deferReply({ ephemeral: true });
 
-  // מצא/צור קטגוריה
   const catName = `טיקטים - ${cat.label}`;
   let category = guild.channels.cache.find(
     c => c.name === catName && c.type === ChannelType.GuildCategory
@@ -172,7 +165,6 @@ async function handleModalSubmit(interaction) {
     });
   }
 
-  // הרשאות: @everyone לא רואה, המשתמש רואה, תפקידי צוות רואים
   const overwrites = [
     { id: guild.roles.everyone.id, deny: [PermissionsBitField.Flags.ViewChannel] },
     {
@@ -185,7 +177,6 @@ async function handleModalSubmit(interaction) {
     }
   ];
 
-  // הוסף כל תפקידי הצוות
   const staffRoles = getStaffRoles(guild);
   staffRoles.forEach(role => {
     overwrites.push({
@@ -199,7 +190,6 @@ async function handleModalSubmit(interaction) {
     });
   });
 
-  // צור חדר הטיקט
   const channelName = safeName(`טיקט-${user.username}-${catId}`);
   const ticketChannel = await guild.channels.create({
     name: channelName,
@@ -209,7 +199,6 @@ async function handleModalSubmit(interaction) {
     permissionOverwrites: overwrites
   });
 
-  // הודעה בחדר הטיקט
   const staffMention = staffRoles.size > 0
     ? staffRoles.map(r => `<@&${r.id}>`).join(' ')
     : '';
@@ -242,7 +231,6 @@ async function handleCloseTicket(interaction) {
   const channel = interaction.channel;
   await interaction.reply({ content: '🔒 הטיקט נסגר. החדר יימחק בעוד 5 שניות.' });
 
-  // תמליל
   try {
     let messages = [];
     let lastId = null;
@@ -264,7 +252,6 @@ async function handleCloseTicket(interaction) {
     const buffer = Buffer.from(`תמליל: ${channel.name}\n${'='.repeat(40)}\n\n${transcript}`, 'utf-8');
     const attachment = new AttachmentBuilder(buffer, { name: `${channel.name}.txt` });
 
-    // שלח לוג
     const guild = interaction.guild;
     let logChannel = guild.channels.cache.find(
       c => c.name === 'ticket-logs' && c.type === ChannelType.GuildText
