@@ -420,13 +420,13 @@ async function publishMenu(menu) {
   await sendTriggerMessage(guild, menu);
 }
 
-async function publishTicketPanel(ticketConfig) {
+async function publishTicketPanel() {
   if (!client || !client.isReady()) throw new Error('הבוט לא מחובר.');
   const config = loadConfig();
   if (!config.guildId) throw new Error('לא הוגדר guildId.');
   const guild = client.guilds.cache.get(config.guildId);
   if (!guild) throw new Error('הבוט אינו חבר בשרת המוגדר.');
-  return ticketEngine.publishTicketPanel(guild, config);
+  return ticketEngine.publishTicketPanel(guild);
 }
 
 async function createVoiceChannel(voiceConfig) {
