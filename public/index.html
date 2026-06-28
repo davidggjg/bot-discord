@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>פאנל ניהול בוט</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app">
+    <div class="topbar">
+      <h1>פאנל ניהול בוט</h1>
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div class="status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">בודק חיבור...</span>
+        </div>
+        <button class="icon-btn" id="settingsBtn" title="הגדרות">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- בקרת בוט -->
+    <div class="panel">
+      <h2>חיבור הבוט <span class="sub">הפעלה/כיבוי של הבוט בדיסקורד</span></h2>
+      <div class="btn-row" style="margin-top:0;">
+        <button class="btn" id="startBotBtn">הפעל בוט</button>
+        <button class="btn secondary" id="stopBotBtn">כבה בוט</button>
+      </div>
+      <div class="helper-text" id="botHint"></div>
+    </div>
+
+    <!-- בניית תפריט חדש -->
+    <div class="panel">
+      <h2>בניית תפריט / חדרים חדש <span class="sub">תאר בעברית חופשית מה הבוט צריך לעשות</span></h2>
+
+      <label for="menuDescription">תיאור התהליך</label>
+      <textarea id="menuDescription" placeholder="לדוגמה: בערוץ 'פתיחת-תיק' הבוט שולח הודעה עם כפתור 'פתח תיק חדש'. בלחיצה הוא שואל 'מה הנושא?' ולאחר התשובה פותח חדר בשם תיק-של-{username} עם ההודעה 'התיק שלך נפתח, מצרף נא תיאור מלא'..."></textarea>
+
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="imageInput" accept="image/*" style="display:none;">
+        <div id="uploadZoneContent">📷 לחץ כאן להעלות תמונה לדוגמה (אופציונלי) — הבוט ינתח אותה ויבין את המבנה המבוקש</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" id="buildMenuBtn">
+          <span id="buildBtnText">בנה תפריט</span>
+        </button>
+        <button class="btn secondary" id="clearFormBtn">נקה</button>
+      </div>
+      <div class="helper-text">לאחר הבנייה, התפריט יופיע ברשימה למטה ותוכל לפרסם אותו לשרת.</div>
+    </div>
+
+    <!-- מערכת טיקטים -->
+    <div class="panel">
+      <h2>מערכת טיקטים <span class="sub">תאר בעברית חופשית והבוט יבנה הכל אוטומטית</span></h2>
+
+      <label for="ticketDescription">תאר את מערכת הטיקטים שאתה רוצה</label>
+      <textarea id="ticketDescription" placeholder="לדוגמה: הבוט יציג בערוץ 'פתיחת-טיקט' תפריט בחירה עם האפשרויות: דיווח על שחקן, דיווח על אדמין, עזרה כללית, תלונה על בד. בלחיצה יפתח חלון שבו המשתמש כותב תיאור. הטיקטים ייפתחו בקטגוריה 'טיקטים', והתמלילים ישלחו לערוץ 'ticket-logs'."></textarea>
+
+      <div class="btn-row">
+        <button class="btn" id="buildTicketBtn">
+          <span id="buildTicketBtnText">בנה מערכת טיקטים</span>
+        </button>
+      </div>
+      <div class="helper-text">ה-AI יחלץ מהתיאור את הקטגוריות, שמות הערוצים, ותוכן ההודעות - ויבנה הכל אוטומטית.</div>
+
+      <div id="ticketPreview" style="display:none; margin-top:16px;">
+        <hr style="border:none; border-top:1px solid var(--border); margin-bottom:16px;">
+        <div style="font-size:13px; font-weight:700; margin-bottom:10px;">תצוגה מקדימה של מה שנבנה:</div>
+        <div id="ticketPreviewContent"></div>
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn" id="publishTicketBtn">פרסם פאנל לשרת</button>
+          <button class="btn secondary" id="clearTicketBtn">נקה ובנה מחדש</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- שער אימות -->
+    <div class="panel" style="border-color:#c7a847;">
+      <h2>שער אימות (Verify Gate) <span class="sub">נועל את כל הערוצים הקיימים, חברים חדשים רואים רק ערוץ אימות</span></h2>
+
+      <div class="helper-text" style="color:#946b00; margin-bottom:14px; font-weight:600;">
+        ⚠️ פעולה זו משנה הרשאות על כל הערוצים הקיימים בשרת שלך. מומלץ לבדוק את התצוגה המקדימה היטב לפני ביצוע.
+      </div>
+
+      <label for="verifyChannelInput">שם ערוץ האימות (יישאר גלוי לכולם)</label>
+      <input type="text" id="verifyChannelInput" placeholder="verify">
+
+      <label for="verifiedRoleInput">שם התפקיד שיוענק למאומתים</label>
+      <input type="text" id="verifiedRoleInput" placeholder="מאומת">
+
+      <label for="verifyMessageInput">הודעת האימות</label>
+      <input type="text" id="verifyMessageInput" placeholder="לחץ על הכפתור כדי לאשר שאתה אנושי...">
+
+      <div class="btn-row">
+        <button class="btn secondary" id="saveVerifyConfigBtn">שמור הגדרות</button>
+        <button class="btn secondary" id="previewVerifyBtn">תצוגה מקדימה</button>
+      </div>
+
+      <div id="verifyPreviewBox" style="display:none; margin-top:16px;">
+        <hr style="border:none; border-top:1px solid var(--border); margin-bottom:14px;">
+        <div id="verifyPreviewContent" style="font-size:13px; margin-bottom:14px;"></div>
+        <div class="btn-row" style="margin-top:0;">
+          <button class="btn" id="executeVerifyBtn" style="background:#946b00;">בצע נעילה בפועל</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ברכת חבר חדש -->
+    <div class="panel">
+      <h2>ברכת חבר חדש <span class="sub">תיוג אוטומטי + הודעת ברוך הבא בהצטרפות לשרת</span></h2>
+
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="welcomeEnabled" style="width:18px; height:18px;">
+        <span>הפעל ברכה אוטומטית</span>
+      </label>
+
+      <label for="welcomeChannelInput">שם ערוץ הברכה (הבוט ייצור אותו אם לא קיים)</label>
+      <input type="text" id="welcomeChannelInput" placeholder="ברוכים-הבאים">
+
+      <label for="welcomeMessageInput">תבנית ההודעה (אפשר להשתמש ב-{user} לתיוג, {server} לשם השרת)</label>
+      <input type="text" id="welcomeMessageInput" placeholder="ברוך הבא לשרת, {user}! 🎉">
+
+      <div class="btn-row">
+        <button class="btn secondary" id="saveWelcomeBtn">שמור</button>
+      </div>
+    </div>
+
+    <!-- חדרים קוליים נעולים -->
+    <div class="panel">
+      <h2>חדר קולי נעול <span class="sub">תאר את החדר, התפקידים המורשים, והאם להשתיק כברירת מחדל</span></h2>
+
+      <label for="voiceDescription">תיאור החדר הקולי</label>
+      <textarea id="voiceDescription" placeholder="לדוגמה: צור חדר קולי בשם 'דיונים פרטיים' שרק אדמינים ומעלה יכולים להיכנס אליו. מי שנכנס מושתק אוטומטית, ורק אדמין יכול לתת אישור לדבר."></textarea>
+
+      <div class="btn-row">
+        <button class="btn" id="buildVoiceBtn">
+          <span id="buildVoiceBtnText">בנה הגדרות חדר</span>
+        </button>
+      </div>
+      <div class="helper-text">ה-AI יתאים את התפקידים שתזכיר לתפקידים האמיתיים שקיימים בשרת שלך.</div>
+
+      <div id="voicePreview" style="display:none; margin-top:16px;">
+        <hr style="border:none; border-top:1px solid var(--border); margin-bottom:16px;">
+        <div id="voicePreviewContent" style="font-size:13px; margin-bottom:14px;"></div>
+        <div class="btn-row" style="margin-top:0;">
+          <button class="btn" id="createVoiceBtn">צור את החדר בשרת</button>
+          <button class="btn secondary" id="clearVoiceBtn">נקה ובנה מחדש</button>
+        </div>
+      </div>
+
+      <div class="helper-text" style="margin-top:14px;">
+        אדמינים (עם הרשאת Mute Members) יכולים להשתמש בפקודות <code>/unmute @user</code> ו-<code>/mute @user</code> כדי לאשר או לבטל דיבור למשתמש שנמצא בחדר הקולי. הפקודות נרשמות אוטומטית בעלייה הראשונה של הבוט.
+      </div>
+    </div>
+
+    <!-- רשימת תפריטים -->
+    <div class="panel">
+      <h2>תפריטים שנבנו</h2>
+      <div id="menusList">
+        <div class="empty-state">עדיין לא נבנו תפריטים. תאר תהליך למעלה כדי להתחיל.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- מודאל הגדרות -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <h3>הגדרות מערכת</h3>
+
+      <label for="discordTokenInput">טוקן בוט דיסקורד</label>
+      <input type="password" id="discordTokenInput" placeholder="הדבק כאן את הטוקן מ-Discord Developer Portal">
+
+      <label for="groqKeyInput">מפתח Groq API</label>
+      <input type="password" id="groqKeyInput" placeholder="הדבק כאן את מפתח ה-API מ-console.groq.com">
+
+      <label for="guildIdInput">מזהה השרת (Guild ID)</label>
+      <input type="text" id="guildIdInput" placeholder="לחץ קליק ימני על שם השרת בדיסקורד -> Copy ID">
+      <div class="helper-text">יש להפעיל מצב מפתחים בדיסקורד (Developer Mode) בהגדרות -> מתקדם, כדי לראות אפשרות "העתק מזהה".</div>
+
+      <div class="modal-close-row">
+        <button class="btn secondary" id="closeSettingsBtn">סגור</button>
+        <button class="btn" id="saveSettingsBtn">שמור</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

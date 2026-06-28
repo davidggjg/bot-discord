@@ -1,0 +1,21 @@
+# render.yaml — הגדרות אוטומטיות ל-Render.com
+# כשתחבר את ה-repo לרנדר, הוא יקרא את הקובץ הזה אוטומטית.
+
+services:
+  - type: web
+    name: discord-bot-dashboard
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DISCORD_TOKEN
+        sync: false      # תמלא ידנית ב-Render Dashboard
+      - key: GROQ_API_KEY
+        sync: false      # תמלא ידנית ב-Render Dashboard
+      - key: GUILD_ID
+        sync: false      # תמלא ידנית ב-Render Dashboard

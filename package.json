@@ -1,0 +1,22 @@
+{
+  "name": "discord-room-builder-bot",
+  "version": "1.0.0",
+  "description": "מערכת בוט דיסקורד עם דשבורד ניהול ובינוי תפריטים אוטומטי באמצעות AI",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.26.4",
+    "express": "^4.21.2",
+    "groq-sdk": "^0.7.0",
+    "multer": "^2.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
