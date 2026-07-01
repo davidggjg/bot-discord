@@ -1,6 +1,5 @@
 // src/aiMenuBuilder.js
-// אחראי על תרגום תיאור חופשי בעברית (שדוד כותב בדשבורד) למבנה תפריט מדויק
-// שהבוט יודע לבצע: כפתורים -> שאלות -> תגובות -> פתיחת חדרים -> כפתורים נוספים וכו'
+// אחראי על תרגום תיאור חופשי בעברית למבנה JSON מדויק שהבוט יודע לבצע
 
 const Groq = require('groq-sdk');
 
@@ -54,7 +53,7 @@ async function buildMenuFromDescription({ apiKey, description, existingMenu = nu
     : `התיאור של דוד:\n${description}`;
 
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile', // מודל טקסט יציב ופעיל ב-Groq (אם יוצא משימוש, להחליף בערך עדכני מ-console.groq.com/docs/models)
+    model: 'openai/gpt-oss-120b',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: userContent }
@@ -74,13 +73,12 @@ async function buildMenuFromDescription({ apiKey, description, existingMenu = nu
   try {
     parsed = JSON.parse(cleaned);
   } catch (err) {
-    throw new Error('ה-AI החזיר תשובה שלא ניתנת לפענוח כ-JSON תקין. נסה לתאר את הבקשה בצורה פשוטה יותר ולנסות שוב. שגיאה: ' + err.message);
+    throw new Error('ה-AI החזיר תשובה שלא ניתנת לפענוח כ-JSON תקין. שגיאה: ' + err.message);
   }
 
   return parsed;
 }
 
-// ניתוח תמונה לדוגמה (אם דוד מעלה צילום מסך של תפריט קיים כדי שהבוט "יבין" איך זה אמור להיראות)
 async function analyzeExampleImage({ apiKey, base64Image, mimeType, description }) {
   if (!apiKey) {
     throw new Error('חסר מפתח Groq API. יש להזין אותו בדשבורד תחת הגדרות.');
@@ -89,7 +87,7 @@ async function analyzeExampleImage({ apiKey, base64Image, mimeType, description 
   const groq = new Groq({ apiKey });
 
   const completion = await groq.chat.completions.create({
-    model: 'meta-llama/llama-4-scout-17b-16e-instruct', // מודל הויז'ן הפעיל ב-Groq (החלפה ל-llama-3.2-90b-vision-preview הישן, שהוצא משימוש)
+    model: 'openai/gpt-oss-120b',
     messages: [
       {
         role: 'user',
@@ -129,7 +127,7 @@ const TICKET_SYSTEM_PROMPT = `אתה מנוע שמתרגם תיאור חופשי
 חוקים:
 1. חלץ מהתיאור את כל הקטגוריות שדוד מזכיר (כל "סוג טיקט" או "נושא" הוא קטגוריה נפרדת שתקבל תיקייה משלה).
 2. אם דוד לא ציין שם ערוץ לוג - השתמש בברירת מחדל "ticket-logs".
-3. הוסף אימוג'י מתאים לכל קטגוריה אם זה הגיוני (לדוגמה 🚨 לדיווחים, ❓ לעזרה, 📝 לתלונות), אחרת השאר ריק.
+3. הוסף אימוג'י מתאים לכל קטגוריה אם זה הגיוני, אחרת השאר ריק.
 4. מקסימום 25 קטגוריות.
 5. אסור להחזיר שום דבר מעבר ל-JSON עצמו.`;
 
@@ -141,7 +139,7 @@ async function buildTicketSystemFromDescription({ apiKey, description }) {
   const groq = new Groq({ apiKey });
 
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     messages: [
       { role: 'system', content: TICKET_SYSTEM_PROMPT },
       { role: 'user', content: `התיאור של דוד:\n${description}` }
@@ -160,10 +158,9 @@ async function buildTicketSystemFromDescription({ apiKey, description }) {
   try {
     parsed = JSON.parse(cleaned);
   } catch (err) {
-    throw new Error('ה-AI החזיר תשובה שלא ניתנת לפענוח כ-JSON תקין. נסה לתאר את הבקשה בצורה פשוטה יותר ולנסות שוב. שגיאה: ' + err.message);
+    throw new Error('ה-AI החזיר תשובה שלא ניתנת לפענוח כ-JSON תקין. שגיאה: ' + err.message);
   }
 
-  // הוספת מזהה ייחודי לכל קטגוריה (ה-AI לא מתבקש לייצר את זה, כדי למנוע התנגשויות)
   parsed.categories = (parsed.categories || []).slice(0, 25).map((cat, idx) => ({
     id: 'cat_' + Date.now() + '_' + idx,
     label: (cat.label || `קטגוריה ${idx + 1}`).slice(0, 100),
@@ -176,7 +173,7 @@ async function buildTicketSystemFromDescription({ apiKey, description }) {
 
 const VOICE_SYSTEM_PROMPT = `אתה מנוע שמתרגם תיאור חופשי בעברית של "חדר קולי נעול" בדיסקורד, למבנה JSON מדויק.
 
-תקבל גם רשימה של התפקידים (Roles) הקיימים בפועל בשרת. עליך להתאים מהתיאור החופשי לאיזה תפקידים (לפי השם המדויק שבשרת) מתכוון דוד.
+תקבל גם רשימה של התפקידים (Roles) הקיימים בפועל בשרת. עליך להתאים מהתיאור החופשי לאיזה תפקידים מתכוון דוד.
 
 המבנה חייב להיות אובייקט JSON יחיד בלבד, בלי שום טקסט נוסף, בלי הסברים, בלי גדרות קוד, רק ה-JSON עצמו.
 
@@ -190,9 +187,9 @@ const VOICE_SYSTEM_PROMPT = `אתה מנוע שמתרגם תיאור חופשי 
 
 חוקים:
 1. "allowedRoleNames" חייב להכיל שמות תפקידים מדויקים מהרשימה שסיפקתי - אל תמציא שמות שלא קיימים.
-2. אם דוד מתאר היררכיה ("מדרגה X ומעלה") - כלול את כל התפקידים שהוא מזכיר כרלוונטיים מהרשימה.
+2. אם דוד מתאר היררכיה - כלול את כל התפקידים שהוא מזכיר כרלוונטיים מהרשימה.
 3. muteByDefault צריך להיות true אם דוד תיאר שמשתמשים נכנסים מושתקים וצריכים אישור לדבר. אחרת false.
-4. אם דוד לא ציין שם לתיקיית קטגוריה - השאר את categoryFolderName כמחרוזת ריקה.
+4. אם דוד לא ציין שם לתיקיית קטגוריה - השתמש במחרוזת ריקה.
 5. אסור להחזיר שום דבר מעבר ל-JSON עצמו.`;
 
 async function buildVoiceChannelFromDescription({ apiKey, description, availableRoles }) {
@@ -205,7 +202,7 @@ async function buildVoiceChannelFromDescription({ apiKey, description, available
   const rolesListText = availableRoles.map((r) => `- ${r.name} (id: ${r.id})`).join('\n');
 
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+    model: 'openai/gpt-oss-120b',
     messages: [
       { role: 'system', content: VOICE_SYSTEM_PROMPT },
       {
@@ -227,10 +224,9 @@ async function buildVoiceChannelFromDescription({ apiKey, description, available
   try {
     parsed = JSON.parse(cleaned);
   } catch (err) {
-    throw new Error('ה-AI החזיר תשובה שלא ניתנת לפענוח כ-JSON תקין. נסה לתאר את הבקשה בצורה פשוטה יותר. שגיאה: ' + err.message);
+    throw new Error('ה-AI החזיר תשובה שלא ניתנת לפענוח כ-JSON תקין. שגיאה: ' + err.message);
   }
 
-  // התאמת שמות התפקידים שה-AI החזיר ל-IDs האמיתיים מהשרת
   const matchedRoleIds = [];
   for (const roleName of parsed.allowedRoleNames || []) {
     const match = availableRoles.find((r) => r.name === roleName);
@@ -238,7 +234,7 @@ async function buildVoiceChannelFromDescription({ apiKey, description, available
   }
 
   if (!matchedRoleIds.length) {
-    throw new Error('לא הצלחתי להתאים שום תפקיד מהתיאור לתפקידים הקיימים בשרת. נסה לציין את שם התפקיד המדויק כפי שהוא מופיע בדיסקורד.');
+    throw new Error('לא הצלחתי להתאים שום תפקיד מהתיאור לתפקידים הקיימים בשרת.');
   }
 
   return {
